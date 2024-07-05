@@ -1,0 +1,27 @@
+﻿@model TO.WebApp.MVC.Models.Prescricao.PrescricaoViewModel
+
+<div class="modal-dialog testeModal" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title" id="exampleModalLabel">Confirmar Exclusão</h4>
+        </div>
+        <div class="modal-body">
+            <p>
+                Deseja remover a prescrição referente ao paciente @Model.NomePaciente ?
+            </p>
+            @if (@Model.Itens?.ToList().Count > 0)
+            {
+                <p>
+                    A prescrição possui @Model.Itens?.ToList().Count() medicamentos.
+                </p>
+            }
+        </div>
+        <div class="modal-footer">
+            <form asp-action="_ConfirmarExclusao">
+                @Html.HiddenFor(x => x.Id)
+                <input type="submit" value="Delete" class="btn btn-danger" /> |
+                <a asp-action="Index">Retornar</a>
+            </form>
+        </div>
+    </div>
+</div>

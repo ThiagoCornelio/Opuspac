@@ -1,0 +1,6 @@
+@TO.Prescricao.API_HostAddress = http://localhost:5216
+
+GET {{TO.Prescricao.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

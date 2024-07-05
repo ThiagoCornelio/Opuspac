@@ -1,0 +1,111 @@
+﻿@using TO.WebApp.MVC.Extensions
+@model TO.WebApp.MVC.Models.Prescricao.PrescricaoViewModel
+
+<div class="container mt-5 border border-ligth">
+
+    <div id="divCliente" class="row" style="padding:1em; padding-bottom:0em !important">
+        <h3>Prescrição Paciente</h3>
+        <hr>
+        <form id="criarPrescricao" asp-action="Edit" asp-controller="Prescricao">
+            <vc:summary></vc:summary>
+
+            <input type="hidden" id="Id" name="Id" value="@Model.Id" />
+
+            <div class="row align-items-center">
+                <div class="col-md-2">
+                    <img alt="QR Code" src="data:image/jpeg;base64,@Model.Image" class="img-fluid" style="width:85%; height:35%">
+                </div>
+
+                <div class="col-md-10">
+                    <div class="form-group" style="padding-bottom:1em">
+                        <label asp-for="NomePaciente" class="control-label"></label>
+                        <input asp-for="NomePaciente" class="form-control" />
+                        <span asp-validation-for="NomePaciente" class="text-danger"></span>
+                    </div>
+                    <div class="form-group" style="padding-bottom:1em">
+                        <label asp-for="NomeMedico" class="control-label"></label>
+                        <input asp-for="NomeMedico" class="form-control" />
+                        <span asp-validation-for="NomeMedico" class="text-danger"></span>
+                    </div>
+                </div>
+
+            </div>
+
+            <select id="Medicamentos" name="Medicamentos" class="form-control" style="display:none">
+                @foreach (var item in Model.MedicamentoList)
+                {
+                    <option value="@item.Id">@item.Nome</option>
+                }
+            </select>
+
+            <select id="Quantidades" name="Quantidades" class="form-control" style="display:none">
+                @{
+                    @Html.Raw(this.SelectOptionsPorQuantidade(5))
+                }
+            </select>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start" style="padding 1em 0;">
+                <button type="button" class="btn btn-primary me-md-2" id="adicionarItem"> <i class="fa fa-plus" style="padding-right:1em;"></i>Adicionar Medicamento</button>
+            </div>
+
+            <table class="table" id="tabelaMedicamento">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantidade</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        foreach (var item in Model.Itens)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="text-left">
+                                        @Html.DropDownList("medicamentoSelecionado", new SelectList(Model.MedicamentoList, "Id", "Nome", item.MedicamentoId), new { @class = "form-control", @disabled = "disabled" })
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="text-left">
+                                        <select id="Quantidades" name="Quantidades" data-url="@Url.Action("atualizar-item-prescricao", "Prescricao")" data-medicamentoid="@item.MedicamentoId" class="form-control qtdMedicamento">
+                                            @{
+                                                @Html.Raw(this.SelectOptionsPorQuantidade(5, item.Quantidade))
+                                            }
+                                        </select>
+                                    </div>
+                                </td>
+                                <td style="width: 0%;" hidden="hidden">
+                                    <div class="text-right">
+                                        <button type="button" class="btn btn-success">
+                                            <i class="fa fa-save"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td style="width: 0%;">
+                                    <div>
+                                        <button type="button" class="btn btn-danger removerItemTabela" data-url="@Url.Action("remover-item", "Prescricao")" data-id="@item.MedicamentoId">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+
+            <div class="card-body border-top">
+                <a asp-controller="Prescricao" asp-action="Index" class="btn btn-light"> <i class="fa fa-chevron-left"></i> Retornar </a>
+                <button type="submit" class="btn btn-success float-end"> Salvar <i class="fa fa-chevron-right"></i> </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/manipularTabelaMedicamentoPrescricao.js"></script>
+}

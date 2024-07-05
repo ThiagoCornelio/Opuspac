@@ -1,0 +1,4 @@
+﻿namespace TO.Core.Messages.Integration;
+public abstract class IntegrationEvent : Event
+{
+}

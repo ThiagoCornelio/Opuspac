@@ -1,0 +1,140 @@
+﻿@model IEnumerable<TO.WebApp.MVC.Models.Prescricao.PrescricaoViewModel>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<div class="container mt-5">
+    <h3>Lista de Prescrições</h3>
+
+    <p>
+        <a class="btn btn-primary" href="@Url.Action("criar-prescricao","Prescricao")"><i class="fa fa-plus" style="padding-right:1em;"></i>Adicionar </a>
+    </p>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.NomePaciente)
+                    </th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.NomePaciente)
+                        </td>
+                        <td style="width:30%">
+                            <button type="button" class="btn btn-success finalizarPrescricao" data-bs-toggle="modal" data-bs-target="#finalizarModal" data-url="@Url.Action("finalizar", "prescricao", new { id = item.Id })">
+                                <i class="fa fa-check white" style="padding-right:1em;"></i>Finalizar
+                            </button>
+
+                            <a class="btn btn-warning text-white" href="@Url.Action("Editar","Prescricao", new { id = item.Id})">
+                                <i class="fa fa-pencil-alt white" style="padding-right:1em;"></i>Editar
+                            </a>
+
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#excluirModal" data-url="@Url.Action("excluir", "prescricao", new { id = item.Id })" data-id="@item.Id">
+                                <i class="fas fa-trash-alt" style="padding-right:1em;"></i>Excluir
+                            </button>
+                        </td>
+                    </tr>
+                }
+                <form id="antiForgeryForm" method="post">
+                    @Html.AntiForgeryToken()
+                </form>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="modal fade" id="excluirModal" tabindex="-1" aria-labelledby="excluirModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="excluirModalLabel">Excluir Prescrição</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    Deseja remover a Prescrição?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-danger" id="confirmarExclusao">Excluir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="modalContainer" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    </div>
+
+    <div class="modal fade" id="finalizarModal" tabindex="-1" aria-labelledby="finalizarModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="finalizarModalLabel">Finalizar Prescrição</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-success" id="confirmarExclusao">Finalizar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let id;
+            let url;
+
+            const form = $("#antiForgeryForm");
+            const token = form[0][0].value;
+
+            $("#excluirModal").on("show.bs.modal", function (evt) {
+                const button = $(evt.relatedTarget);
+                id = button.data("id");
+                url = button.data("url");
+            })
+
+            $("#confirmarExclusao").on("click", () => {
+                $("#excluirModal").modal('hide');
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    headers: { 'RequestVerificationToken': token },
+                    success: () => {
+                        alertRetorno(tipoAlert.Success, "Prescrição removida com sucesso.");
+                        location.reload();
+                    },
+                    error: () => {
+                        alertRetorno(tipoAlert.Error, "Ocorreu um erro ao excluir a prescrição.");
+                    }
+                })
+            })
+        })
+
+        $(document).on("click", ".finalizarPrescricao", function (evt) {
+            evt.preventDefault();
+
+            let url = $(this).data("url");
+
+            $.get(url,
+                (data) => {
+                    $("#finalizarModal .modal-body").html(data);
+                    $("#finalizarModal").modal("show");
+                });
+        })
+
+    </script>
+}
